@@ -1,15 +1,17 @@
 import { writeMachineData } from "./services/influxService.js"
 
 async function addData(measurement){
-    let count = 0
+    let count = 0;
+    let i = 1;
 
     setInterval(() => {
-    count += 1
-    const temp = (40 + Math.random() * 10).toFixed(2)       // e.g., 40 - 50 °C
-    const pressure = (1.0 + Math.random() * 0.5).toFixed(2)  // e.g., 1.0 - 1.5 bar
+        count += 1
+        if(count%60==0){i+=1;}
+        const temp = (40 + Math.random() * 10).toFixed(2)       
+        const pressure = (1.0 + Math.random() * 0.5).toFixed(2) 
 
-    writeMachineData(measurement,{count:count,station:measurement,temp:temp,pressure:pressure});
-    console.log(`Data written: count=${count}, temp=${temp}, pressure=${pressure}`)
+        writeMachineData(measurement,{count:count,station:measurement,temp:temp,pressure:pressure,shift:i});
+        console.log(`Data written: count=${count}, temp=${temp}, pressure=${pressure}`)
     }, 1000) 
 
     process.on('SIGINT', async () => {
