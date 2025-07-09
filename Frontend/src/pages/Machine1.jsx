@@ -1,20 +1,61 @@
-import React, { useState } from 'react'
-import LineChart from '../components/LineChart'
-import { motion } from 'framer-motion'
-import { Play, X } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-
+import React, { useEffect, useState } from 'react';
+import LineChart from '../components/LineChart';
+import { motion } from 'framer-motion';
+import { Play } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useDataStore } from '../store/dataStore.js';
+import socket from '../socket.js';
 
 const Machine1 = () => {
+  const nav = useNavigate();
+  const { getData } = useDataStore();
 
-    const nav = useNavigate();
+  const [array1, setArr] = useState([]);
+  const [newVal, setNewVal] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    getData(1, (countArray) => {
+      setArr(countArray);
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleData = (data) => {
+      const count = data[0]?.count;
+      if (typeof count === "number") {
+        setNewVal(count);
+        setArr(prev => {
+          const updated = [...prev, count];
+          if (updated.length > 60) return updated;
+          return updated;
+        });
+      }
+    };
+
+    socket.emit("machine1-stream", { measurement: "Machine1" });
+    socket.on("machine1-data", handleData);
+
+    return () => {
+      socket.emit("stop-stream", { measurement: "Machine1" });
+      socket.off("machine1-data", handleData);
+    };
+  }, []);
+
+  const stopSocketStream = () => {
+    socket.emit("stop-stream", { measurement: "Machine1" });
+    socket.off("machine1-data");
+  };
 
     const goToDashBoard = () => {
-        nav("/dash");
-    }
+    nav("/dash");
+}
 
-    const [isHovered, setIsHovered] = useState(false);
-
+  // 🧭 Navigation handlers
+  const goTo = (path) => {
+    stopSocketStream();
+    nav(path);
+  };
   return (
  <div className='bg-white w-full h-screen flex flex-col justify-center items-center'>
         
@@ -29,7 +70,7 @@ const Machine1 = () => {
 
         <div className='bg-white w-full flex flex-col md:flex-row '>
           <div className='bg-white md:w-3/4 w-full flex justify-center items-center md:pl-8'>
-            <LineChart Chartname={"Machine1 Production"}/>
+            <LineChart Chartname="Overall Production" arr={array1} newval={newVal} />
           </div>
           <div className='bg-white md:w-1/4 w-full flex flex-col justify-center items-center p-4'>
 

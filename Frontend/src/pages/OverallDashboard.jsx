@@ -14,15 +14,23 @@ const OverallDashboard = () => {
   const [array1, setArr] = useState([]);
   const [newVal, setNewVal] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [shouldReload, setShouldReload] = useState(0);
 
-  // 🟢 Step 1: Fetch Initial Data from Backend
+  useEffect(() => {
+    if (shouldReload) {
+      window.location.reload();
+      console.log("Page reloaded");
+      
+      setShouldReload(0);
+    }
+  }, [shouldReload]);
+
   useEffect(() => {
     getData(1, (countArray) => {
-      setArr(countArray); // set initial graph data
+      setArr(countArray);
     });
   }, []);
 
-  // 🟢 Step 2: Start Real-time Data Stream
   useEffect(() => {
     const handleData = (data) => {
       const count = data[0]?.count;
@@ -30,7 +38,7 @@ const OverallDashboard = () => {
         setNewVal(count);
         setArr(prev => {
           const updated = [...prev, count];
-          if (updated.length > 60) return updated;
+          if (updated.length > 60) { setShouldReload(1) ; return updated; }
           return updated;
         });
       }
@@ -45,13 +53,10 @@ const OverallDashboard = () => {
     };
   }, []);
 
-  // 🛑 Utility to stop socket when navigating
   const stopSocketStream = () => {
     socket.emit("stop-stream", { measurement: "Machine1" });
     socket.off("machine1-data");
   };
-
-  // 🧭 Navigation handlers
   const goTo = (path) => {
     stopSocketStream();
     nav(path);
@@ -59,7 +64,6 @@ const OverallDashboard = () => {
 
   return (
     <div className='bg-white w-full h-screen flex flex-col justify-center items-center'>
-      {/* Header */}
       <div className='w-full py-4 px-1 font-semibold text-sm md:text-2xl pl-4 font-heading flex items-center justify-start'>
         <img src="./TRW IMAGE.jpg" alt="logo" className='size-10 mr-5'/>
         <span className='bg-gradient-to-r from-red-600 via-pink-600 to-orange-400 bg-clip-text text-transparent'>
@@ -67,7 +71,6 @@ const OverallDashboard = () => {
         </span>
       </div>
 
-      {/* Chart + Controls */}
       <div className='bg-white w-full flex flex-col md:flex-row'>
         <div className='bg-white md:w-3/4 w-full flex justify-center items-center md:pl-8'>
           <LineChart Chartname="Overall Production" arr={array1} newval={newVal} />
@@ -81,19 +84,36 @@ const OverallDashboard = () => {
               <div className='w-5/6 flex flex-col items-end'>
                 <div className='flex'>
                   <div className='p-1'>Target Production:</div>
-                  <div className='border border-gray-900 p-1 rounded-md'>125 units</div>
+                  <div className='border border-gray-900 p-1 rounded-md'>300 units</div>
                 </div>
                 <div className='flex mt-1'>
                   <div className='p-1'>Actual Production:</div>
-                  <div className='border border-gray-900 p-1 rounded-md'>107 units</div>
+                  <div className='border border-gray-900 p-1 rounded-md'>{newVal || 0} units</div>
                 </div>
               </div>
+              
+              {
+                newVal > array1.length*5 ?
+                
+                <>
+                <motion.div
+                onHoverStart={() => setIsHovered(true)}
+                onHoverEnd={() => setIsHovered(false)}
+                className='w-1/6 flex items-center justify-center'>
+                <Play className='-rotate-90 text-green-600'/>
+                </motion.div> </>
+                
+                : 
+                
+              <> 
               <motion.div
                 onHoverStart={() => setIsHovered(true)}
                 onHoverEnd={() => setIsHovered(false)}
                 className='w-1/6 flex items-center justify-center'>
                 <Play className='rotate-90 text-red-600'/>
               </motion.div>
+                </>
+              }
             </div>
 
             {isHovered && (
@@ -108,26 +128,59 @@ const OverallDashboard = () => {
           </div>
 
           {/* Machine Buttons */}
-          {[
-            { name: 'Machine 1', color: 'green', percent: '95%', path: '/machine1' },
-            { name: 'Machine 2', color: 'red', percent: '45%', path: '/machine2' },
-            { name: 'Machine 3', color: 'orange', percent: '73%', path: '/machine3' },
-            { name: 'Machine 4', color: 'green', percent: '87%', path: '/machine4' }
-          ].map((machine, idx) => (
-            <motion.div key={idx} className='w-full text-center pb-1 flex justify-center'>
+            <motion.div  className='w-full text-center pb-1 flex justify-center'>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => goTo(machine.path)}
+                onClick={() => goTo("/machine1")}
                 className='bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-md p-2'>
-                {machine.name}
+                Machine 1
               </motion.button>
               <div className='flex items-center pl-1'>
-                <div className={`w-2 h-2 rounded-lg bg-${machine.color}-600 pl-2`}></div>
-                <div className='text-sm font-medium pl-2'>{machine.percent}</div>
+                <div className={`w-2 h-2 rounded-lg bg-green-600 pl-2`}></div>
+                <div className='text-sm font-medium pl-2'>95%</div>
               </div>
             </motion.div>
-          ))}
+            <motion.div className='w-full text-center pb-1 flex justify-center'>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => goTo("/machine2")}
+                className='bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-md p-2'>
+                Machine 2
+              </motion.button>
+              <div className='flex items-center pl-1'>
+                <div className={`w-2 h-2 rounded-lg bg-green-600 pl-2`}></div>
+                <div className='text-sm font-medium pl-2'>98%</div>
+              </div>
+            </motion.div>
+            <motion.div className='w-full text-center pb-1 flex justify-center'>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => goTo("/machine3")}
+                className='bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-md p-2'>
+                Machine 3
+              </motion.button>
+              <div className='flex items-center pl-1'>
+                <div className={`w-2 h-2 rounded-lg bg-red-600 pl-2`}></div>
+                <div className='text-sm font-medium pl-2'>64%</div>
+              </div>
+            </motion.div>
+
+            <motion.div className='w-full text-center pb-1 flex justify-center'>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => goTo("/machine4")}
+                className='bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-md p-2'>
+                Machine 4
+              </motion.button>
+              <div className='flex items-center pl-1'>
+                <div className={`w-2 h-2 rounded-lg bg-yellow-600 pl-2`}></div>
+                <div className='text-sm font-medium pl-2'>78%</div>
+              </div>
+            </motion.div>
         </div>
       </div>
 

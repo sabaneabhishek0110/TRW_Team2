@@ -6,7 +6,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import influxRoutes from './routes/influxRoutes.js'
 import { getMachineData } from './services/influxService.js';
-import { log } from 'console';
+import userRoutes from "./routes/user_routes.js";
 dotenv.config();
 
 const app = express();
@@ -19,6 +19,7 @@ app.use(cors({
 }));
 
 app.use('/api/influx', influxRoutes);
+app.use("/api/user", userRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server,{
@@ -64,6 +65,9 @@ io.on('connection', (socket) => {
   });
 });
 
+
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`)
 })
+
+// team2trwsuns

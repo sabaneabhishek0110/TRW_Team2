@@ -1,4 +1,4 @@
-import { getInitialData, getMachineData, writeMachineData } from '../services/influxService.js'
+import { getMachineData, writeMachineData,getInitialData } from '../services/influxService.js'
 import { deleteMachineData } from '../services/influxService.js';
 
 export async function handleGetMachineData(req, res) {
@@ -41,8 +41,7 @@ export async function handleDeleteMachineData(req, res) {
 
 export async function HandleGetInitialData(req, res) {
   const { machine } = req.params;
-    console.log(machine, "in serevr");
-    
+
   try {
     const data = await getInitialData(machine);
     res.status(200).json({ message: `Initial data of ${machine} get fetched successfully`, data});
