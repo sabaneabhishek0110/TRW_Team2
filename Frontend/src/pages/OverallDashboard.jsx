@@ -66,22 +66,6 @@ const OverallDashboard = () => {
           return updated;
         });
       }
-      // if (typeof temprature === "number") {
-      //   setNewTemp(temprature);
-      //   setTempArr(prev => {
-      //     const updated = [...prev, temprature];
-      //     // if (updated.length > 60) { setShouldReload(1) ; return updated; }
-      //     return updated;
-      //   });
-      // }
-      // if (typeof pressure === "number") {
-      //   setNewPressure(pressure);
-      //   setArr(prev => {
-      //     const updated = [...prev, count];
-      //     // if (updated.length > 60) { setShouldReload(1) ; return updated; }
-      //     return updated;
-      //   });
-      // }
     };
 
     socket.emit("machine1-stream", { measurement: "Machine1" });

@@ -5,6 +5,17 @@ import twilio from "twilio";
 import { configDotenv } from "dotenv";
 import { getEmailTemplate } from "../utils/getEmailTemplate.js";
 import { getSMSTemplate } from "../utils/getSMSTemplate.js";
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+
+dotenv.config();
+
+await mongoose.connect(process.env.MONGO_URI, {
+  dbName: 'contactMessenger',
+});
+
+console.log('✅ MongoDB connected in write script');
+
 
 configDotenv();
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
@@ -57,6 +68,32 @@ export const sendSMS = async (req, res) => {
   }
 };
 
+export const sendSMSInternal = async ({ phone, alertType, value }) => {
+  try {
+    const user = await User.findOne({ phone });
+    if (!user) {
+      console.warn("User not found for phone:", phone);
+      return { success: false, msg: "User not found" };
+    }
+
+    const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
+    const twilioPhone = process.env.TWILIO_PHONE;
+    const body = getSMSTemplate(alertType, { value });
+
+    const sms = await client.messages.create({
+      body,
+      from: twilioPhone,
+      to: `+91${phone}`,
+    });
+
+    console.log("SMS sent to", phone, "| SID:", sms.sid);
+    return { success: true, sid: sms.sid };
+  } catch (err) {
+    console.error("SMS sending error:", err.message);
+    return { success: false, msg: err.message };
+  }
+};
+
 export const sendEmail = async (req, res) => {
   const { email, alertType, value, machine_number } = req.body;
 
@@ -86,5 +123,38 @@ export const sendEmail = async (req, res) => {
   } catch (err) {
     console.error("Email Error:", err.message);
     res.status(500).send("Failed to send Email");
+  }
+};
+
+export const sendEmailInternal = async ({ email, alertType, value}) => {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.warn("User not found for email:", email);
+      return { success: false, msg: "User not found" };
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+      },
+    });
+
+    const { subject, html } = getEmailTemplate(alertType, { value });
+
+    const info = await transporter.sendMail({
+      from: process.env.MAIL_USER,
+      to: email,
+      subject,
+      html,
+    });
+
+    console.log("✅ Email sent to", email, "| Message ID:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    console.error("Email sending error:", err.message);
+    return { success: false, msg: err.message };
   }
 };

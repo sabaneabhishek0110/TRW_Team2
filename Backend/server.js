@@ -20,6 +20,7 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"]           
 }));
 
+await connectDB();
 app.use('/api/influx', influxRoutes);
 app.use("/api/user", userRoutes);
 
@@ -72,5 +73,4 @@ server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`)
 })
 
-connectDB();
 // team2trwsuns

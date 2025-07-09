@@ -1,12 +1,17 @@
 import mongoose from "mongoose";
 
-const connectDB = (req, res) => {
-  mongoose
-    .connect(process.env.MONGO_URI, {
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
       dbName: "contactMessenger",
-    })
-    .then(() => console.log("database is connected"))
-    .catch((e) => console.log(e));
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("✅ MongoDB connected");
+  } catch (err) {
+    console.error("❌ MongoDB connection failed:", err.message);
+    process.exit(1); // Optional: exit process on failure
+  }
 };
 
 export default connectDB;

@@ -1,3 +1,4 @@
+import { sendEmailInternal, sendSMS, sendSMSInternal } from "./controllers/UserController.js";
 import { writeApi } from "./influxClient.js";
 import { getInitialData, writeMachineData } from "./services/influxService.js"
 
@@ -10,6 +11,13 @@ async function addData(measurement){
     let count = 0;
     let i = 0 ;
     let sec = 0;
+    let notsend1 = true ;
+    let notsend2 = true ;
+    let notsend3 = true ;
+
+    let notsend4 = true ;
+    let notsend5 = true ;
+    let notsend6 = true ;
     if(!response || !countArray){
         i = 0 ;
         sec= 0 ;
@@ -39,6 +47,16 @@ async function addData(measurement){
         }
         const temp = Math.floor(60 + Math.random() * 100)       
         const pressure = Math.floor(40 + Math.random() * 80)
+
+        if(temp < 130 && temp > 120 && notsend1){ sendSMSInternal({phone : "9579061042", alertType : "highTemp", value : temp}); notsend1 = false; }
+        else if(temp < 140 && temp > 130 && notsend2){ sendSMSInternal({phone : "8788330498", alertType : "highTemp", value : temp}); notsend2 = false;}
+        else if(temp > 140 && notsend3){ sendSMSInternal({phone : "8390378000", alertType : "highTemp", value : temp}); notsend3 = false;}
+        
+        if(pressure < 90 && pressure > 80 && notsend4){ sendEmailInternal({email:"sabaneabhishek0110@gmail.com", alertType : "highPressure", value :pressure}); notsend4 = false; }
+        else if(pressure < 100 && pressure > 90 && notsend5){ sendEmailInternal({email:"omkar.sankpal2004.5@gmail.com", alertType : "highPressure", value : pressure}); notsend5 = false;}
+        else if(pressure > 100 && notsend6){ sendEmailInternal({email:"mayurpimp3986@gmail.com", alertType : "highPressure", value : pressure}); notsend6 = false;}
+        
+
 
         writeMachineData(measurement,{count:count,station:measurement,temp:temp,pressure:pressure,shift:i});
         console.log(`Data written: count=${count}, temp=${temp}, pressure=${pressure}`)
