@@ -13,7 +13,7 @@ export function getEmailTemplate(type, data) {
                 <li><strong>Timestamp:</strong> ${timestamp}</li>
               </ul>
               <p>Please investigate this issue immediately to ensure safety and prevent equipment damage.</p>
-              <p>Regards,<br><strong>Automated Monitoring System</strong></p>
+              <p>Regards,<br><strong>Automated Monitoring System <br> TRW SUNS STEERING</strong></p>
             `,
       };
 
@@ -28,7 +28,7 @@ export function getEmailTemplate(type, data) {
                 <li><strong>Timestamp:</strong> ${timestamp}</li>
               </ul>
               <p>Immediate action is required to prevent system failure or hazards.</p>
-              <p>Regards,<br><strong>Automated Monitoring System</strong></p>
+              <p>Regards,<br><strong>Automated Monitoring System <br> TRW SUNS STEERING</strong></p>
             `,
       };
 
@@ -43,7 +43,7 @@ export function getEmailTemplate(type, data) {
                 <li><strong>Timestamp:</strong> ${timestamp}</li>
               </ul>
               <p>Please check the machine’s efficiency and operating conditions.</p>
-              <p>Regards,<br><strong>Automated Monitoring System</strong></p>
+              <p>Regards,<br><strong>Automated Monitoring System <br> TRW SUNS STEERING</strong></p>
             `,
       };
 
@@ -58,7 +58,7 @@ export function getEmailTemplate(type, data) {
                 <li><strong>Timestamp:</strong> ${timestamp}</li>
               </ul>
               <p>This may indicate potential downtime or operational issues. Please investigate.</p>
-              <p>Regards,<br><strong>Automated Monitoring System</strong></p>
+              <p>Regards,<br><strong>Automated Monitoring System <br> TRW SUNS STEERING</strong></p>
             `,
       };
 

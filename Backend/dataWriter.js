@@ -18,7 +18,8 @@ async function addData(measurement){
     let notsend4 = true ;
     let notsend5 = true ;
     let notsend6 = true ;
-    if(!response || !countArray){
+
+    if(response.length == 0 || !countArray){
         i = 0 ;
         sec= 0 ;
     }
@@ -27,7 +28,7 @@ async function addData(measurement){
         console.log(response);
         
         count = countArray[countArray.length - 1]
-        i = response[0].shift ; 
+        i = response[0]?.shift || 0 ; 
         sec = countArray?.length
     } 
 
