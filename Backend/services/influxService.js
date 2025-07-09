@@ -85,6 +85,8 @@ export async function getMachineData(measurement,c) {
 //     });
 // }
 
+
+
 // export async function getInitialData(measurement) {
 //   const bucket = "TRW_Moniter";
 //   const machines = ["dash", "machine1", "machine2", "machine3", "machine4"];
@@ -155,10 +157,9 @@ export async function getMachineData(measurement,c) {
 
 export async function getInitialData(measurement) {
   const bucket = "TRW_Moniter";
-  const machines = ["dash", "machine1", "machine2", "machine3", "machine4"];
-  const selectedMachine = machines[measurement];
 
-  // 1️⃣ Step 1: Get latest shift
+  const selectedMachine = measurement; // ✅ don't do machines[measurement]
+
   const latestShiftQuery = `
     from(bucket: "${bucket}")
       |> range(start: -1d)
@@ -177,7 +178,7 @@ export async function getInitialData(measurement) {
       },
       error(err) {
         console.error("❌ Error fetching latest shift:", err);
-        resolve(0); // Fallback to shift 0 on error
+        resolve(0);
       },
       complete() {
         if (latestShift != null) {
@@ -185,21 +186,22 @@ export async function getInitialData(measurement) {
           resolve(latestShift);
         } else {
           console.warn("⚠️ No shift data found. Defaulting to shift 0");
-          resolve(0); // Fallback if no shift found
+          resolve(0);
         }
       }
     });
   });
 
-  // 2️⃣ Step 2: Query all data with that shift
+  console.log(shiftValue , "This is the shift alue");
+  
   const dataQuery = `
-    from(bucket: "${bucket}")
-      |> range(start: -1d)
-      |> filter(fn: (r) => r._measurement == "${selectedMachine}")
-      |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-      |> filter(fn: (r) => r.shift == ${shiftValue})
-      |> keep(columns: ["_time", "count", "temp", "pressure", "station", "shift"])
-      |> sort(columns: ["_time"], desc: false)
+      from(bucket: "${bucket}")
+    |> range(start: -1d)
+    |> filter(fn: (r) => r._measurement == "${selectedMachine}")
+    |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+    |> filter(fn: (r) => r.shift == ${shiftValue})  // ← runs after pivot
+    |> keep(columns: ["_time", "count", "temp", "pressure", "station", "shift"])
+    |> sort(columns: ["_time"], desc: false)
   `;
 
   return new Promise((resolve) => {
@@ -212,7 +214,7 @@ export async function getInitialData(measurement) {
       },
       error(err) {
         console.error("❌ Error fetching data by shift:", err);
-        resolve([]); // Return empty array instead of rejecting
+        resolve([]);
       },
       complete() {
         resolve(results);
@@ -220,7 +222,6 @@ export async function getInitialData(measurement) {
     });
   });
 }
-
 
 
 export async function writeMachineData(measurement, data) {

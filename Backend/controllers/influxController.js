@@ -44,6 +44,8 @@ export async function HandleGetInitialData(req, res) {
 
   try {
     const data = await getInitialData(machine);
+    console.log("sending data to frontend", data);
+    
     res.status(200).json({ message: `Initial data of ${machine} get fetched successfully`, data});
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch initial data' });

@@ -4,8 +4,8 @@ import { getInitialData, writeMachineData } from "./services/influxService.js"
 async function addData(measurement){ 
 
     const response = await getInitialData("machine1");
-    const countArray = response.data?.data?.map(item => item.count);
-    console.log(countArray);
+    const countArray = response.map(item => item.count);
+    console.log(response, "shift array");
     
     let count = 0;
     let i = 0 ;
@@ -19,7 +19,7 @@ async function addData(measurement){
         console.log(response);
         
         count = countArray[countArray.length - 1]
-        i = response.data?.data[0]?.shift ; 
+        i = response[0].shift ; 
         sec = countArray?.length
     } 
 
@@ -37,8 +37,8 @@ async function addData(measurement){
             count = 0 ; 
             i+=1;
         }
-        const temp = (40 + Math.random() * 10).toFixed(2)       
-        const pressure = (1.0 + Math.random() * 0.5).toFixed(2) 
+        const temp = Math.floor(60 + Math.random() * 100)       
+        const pressure = Math.floor(40 + Math.random() * 80)
 
         writeMachineData(measurement,{count:count,station:measurement,temp:temp,pressure:pressure,shift:i});
         console.log(`Data written: count=${count}, temp=${temp}, pressure=${pressure}`)

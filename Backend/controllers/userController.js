@@ -1,4 +1,4 @@
-import User from "../models/User.js";
+import User from "../model/User.js";
 import { validationResult } from "express-validator";
 import nodemailer from "nodemailer";
 import twilio from "twilio";

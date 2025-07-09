@@ -7,6 +7,8 @@ import { Server } from 'socket.io';
 import influxRoutes from './routes/influxRoutes.js'
 import { getMachineData } from './services/influxService.js';
 import userRoutes from "./routes/user_routes.js";
+import { connect } from 'http2';
+import connectDB from './config/db.js';
 dotenv.config();
 
 const app = express();
@@ -70,4 +72,5 @@ server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`)
 })
 
+connectDB();
 // team2trwsuns

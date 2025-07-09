@@ -9,10 +9,18 @@ import socket from '../socket.js';
 
 const OverallDashboard = () => {
   const nav = useNavigate();
-  const { getData } = useDataStore();
+  const { getData, arr, Tarr, Parr } = useDataStore();
 
   const [array1, setArr] = useState([]);
+  const [Temparray1, setTempArr] = useState([]);
+  const [Pressurearray1, setPressureArr] = useState([]);
+
+
   const [newVal, setNewVal] = useState(0);
+  const [newTemp, setNewTemp] = useState(0);
+  const [newPressure, setNewPressure] = useState(0);
+
+
   const [isHovered, setIsHovered] = useState(false);
   const [shouldReload, setShouldReload] = useState(0);
 
@@ -26,14 +34,20 @@ const OverallDashboard = () => {
   }, [shouldReload]);
 
   useEffect(() => {
-    getData(1, (countArray) => {
-      setArr(countArray);
+    getData(1, (obj) => {
+      setArr(obj.countArray);
+      setTempArr(obj.tempArray);
+      setPressureArr(obj.pressureArray);
+      console.log(obj, "this is obj");
+      
     });
   }, []);
 
   useEffect(() => {
     const handleData = (data) => {
       const count = data[0]?.count;
+      const temprature = data[0]?.temp;
+      const pressure = data[0]?.pressure;
       if (typeof count === "number") {
         setNewVal(count);
         setArr(prev => {
@@ -41,7 +55,33 @@ const OverallDashboard = () => {
           if (updated.length > 60) { setShouldReload(1) ; return updated; }
           return updated;
         });
+        setNewTemp(temprature);
+        setTempArr(prev => {
+          const updated = [...prev, temprature];
+          return updated;
+        });
+        setNewPressure(pressure);
+        setPressureArr(prev => {
+          const updated = [...prev, pressure]; 
+          return updated;
+        });
       }
+      // if (typeof temprature === "number") {
+      //   setNewTemp(temprature);
+      //   setTempArr(prev => {
+      //     const updated = [...prev, temprature];
+      //     // if (updated.length > 60) { setShouldReload(1) ; return updated; }
+      //     return updated;
+      //   });
+      // }
+      // if (typeof pressure === "number") {
+      //   setNewPressure(pressure);
+      //   setArr(prev => {
+      //     const updated = [...prev, count];
+      //     // if (updated.length > 60) { setShouldReload(1) ; return updated; }
+      //     return updated;
+      //   });
+      // }
     };
 
     socket.emit("machine1-stream", { measurement: "Machine1" });
@@ -73,7 +113,7 @@ const OverallDashboard = () => {
 
       <div className='bg-white w-full flex flex-col md:flex-row'>
         <div className='bg-white md:w-3/4 w-full flex justify-center items-center md:pl-8'>
-          <LineChart Chartname="Overall Production" arr={array1} newval={newVal} />
+          <LineChart Chartname="Overall Production" arr={array1} newval={newVal} newTemp={newTemp} newPressure={newPressure} />
         </div>
 
         {/* Sidebar */}

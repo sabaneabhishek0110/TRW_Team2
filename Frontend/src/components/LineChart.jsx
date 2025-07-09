@@ -15,8 +15,8 @@ import socket from '../socket.js';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const LineChart = ({ Chartname, arr, newval}) => {
-  console.log(newval, "Newval"); 
+const LineChart = ({ Chartname, arr, newval, newTemp, newPressure}) => {
+  console.log(newval, "Newval", newTemp, newPressure); 
 
   const [color, setColor] = useState("gray");
   const predictedData = Array.from({ length: 60 }, (_, i) => 5 * (i + 1));
@@ -75,6 +75,18 @@ const LineChart = ({ Chartname, arr, newval}) => {
   const options = {
     responsive: true,
     plugins: {
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const point = context.raw;
+                return [
+                  `Count: ${context.parsed.y} ${point.unit || ''}`,
+                  `Temp:  ${newTemp} °C`,
+                  `Pressure:${newPressure} bar`
+                ];
+              }
+            }
+          },
       legend: { position: 'top' },
       title: { display: true, text: `${Chartname}` },
     },
